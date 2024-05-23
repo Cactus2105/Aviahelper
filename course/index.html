@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Aviahelper</title>
+  <style>
+    .modal {
+      display: none; 
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 60%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .btn-container {
+      margin-bottom: 20px;
+    }
+    .btn-container button {
+      margin-right: 10px;
+    }
+    .add-staff-form {
+      display: none;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var countrySelect = document.getElementById("country");
+      var xhrCountry = new XMLHttpRequest();
+      xhrCountry.open("GET", "get_country.php", true);
+      xhrCountry.onreadystatechange = function() {
+        if (xhrCountry.readyState === 4 && xhrCountry.status === 200) {
+          var countries = JSON.parse(xhrCountry.responseText);
+          countries.forEach(function(country) {
+            var option = document.createElement("option");
+            option.value = country.id_country;
+            option.text = country.country;
+            countrySelect.appendChild(option);
+          });
+        }
+      };
+      xhrCountry.send();
+        
+       document.getElementById('flight_ticket').addEventListener('change', function() {
+  var flightNumber = this.value;
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "get_seat.php?flight_ticket=" + flightNumber, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      var occupiedSeats = JSON.parse(xhr.responseText);
+      var seatButtons = document.querySelectorAll('.seat');
+
+      seatButtons.forEach(function(button) {
+        button.style.backgroundColor = "";
+        button.disabled = false;
+      });
+
+      occupiedSeats.forEach(function(seat) {
+        var seatButton = document.querySelector('.seat[value="' + seat + '"]');
+        if (seatButton) {
+          seatButton.style.backgroundColor = "red";
+          seatButton.disabled = true;
+        }
+      });
+    }
+  };
+  xhr.send();
+});
+             
+document.querySelectorAll('.seat').forEach(function(button) {
+  button.addEventListener('click', function() {
+    var selectedSeat = document.querySelector('.seat.selected');
+    if (selectedSeat) {
+      selectedSeat.classList.remove('selected');
+      selectedSeat.style.backgroundColor = "";
+    }
+    this.classList.add('selected');
+    this.style.backgroundColor = "green";
+    document.getElementById('seat_ticket').value = this.value;
+  });
+});     
+        
+      var countrySelectCompany = document.getElementById("country_company");
+      var xhrCountryCompany = new XMLHttpRequest();
+      xhrCountryCompany.open("GET", "get_country.php", true);
+      xhrCountryCompany.onreadystatechange = function() {
+        if (xhrCountryCompany.readyState === 4 && xhrCountryCompany.status === 200) {
+          var countries = JSON.parse(xhrCountryCompany.responseText);
+          countries.forEach(function(country) {
+            var option = document.createElement("option");
+            option.value = country.id_country;
+            option.text = country.country;
+            countrySelectCompany.appendChild(option);
+          });
+        }
+      };
+      xhrCountryCompany.send();
+        
+      var countrySelectPassanger = document.getElementById("country_passanger");
+      var xhrCountryPassanger = new XMLHttpRequest();
+      xhrCountryPassanger.open("GET", "get_country.php", true);
+      xhrCountryPassanger.onreadystatechange = function() {
+        if (xhrCountryPassanger.readyState === 4 && xhrCountryPassanger.status === 200) {
+          var countries = JSON.parse(xhrCountryPassanger.responseText);
+          countries.forEach(function(country) {
+            var option = document.createElement("option");
+            option.value = country.id_country;
+            option.text = country.country;
+            countrySelectPassanger.appendChild(option);
+          });
+        }
+      };
+      xhrCountryPassanger.send();
+
+      var sexSelectAero = document.getElementById("sex");
+      var xhrSexAero = new XMLHttpRequest();
+      xhrSexAero.open("GET", "get_sex.php", true);
+      xhrSexAero.onreadystatechange = function() {
+        if (xhrSexAero.readyState === 4 && xhrSexAero.status === 200) {
+          var sexes = JSON.parse(xhrSexAero.responseText);
+          sexes.forEach(function(sex) {
+            var option = document.createElement("option");
+            option.value = sex.id_s;
+            option.text = sex.sex;
+            sexSelectAero.appendChild(option);
+          });
+        }
+      };
+      xhrSexAero.send();
+
+      var posSelectAero = document.getElementById("airport_pos_list");
+      var xhrPosAero = new XMLHttpRequest();
+      xhrPosAero.open("GET", "get_aeroport_pos_list.php", true);
+      xhrPosAero.onreadystatechange = function() {
+        if (xhrPosAero.readyState === 4 && xhrPosAero.status === 200) {
+          var positions = JSON.parse(xhrPosAero.responseText);
+          positions.forEach(function(position) {
+            var option = document.createElement("option");
+            option.value = position.id_airport_pos_list;
+            option.text = position.position;
+            posSelectAero.appendChild(option);
+          });
+        }
+      };
+      xhrPosAero.send();
+        
+      var posSelect = document.getElementById("company_pos_list");
+      var xhrPos = new XMLHttpRequest();
+      xhrPos.open("GET", "get_company_pos_list.php", true);
+      xhrPos.onreadystatechange = function() {
+        if (xhrPos.readyState === 4 && xhrPos.status === 200) {
+          var positions = JSON.parse(xhrPos.responseText);
+          positions.forEach(function(position) {
+            var option = document.createElement("option");
+            option.value = position.id_company_pos_list;
+            option.text = position.position;
+            posSelect.appendChild(option);
+          });
+        }
+      };
+      xhrPos.send();
+
+      var aeroportSelectAero1 = document.getElementById("aeroport_staff_aeroport");
+      var xhrAeroportAero1 = new XMLHttpRequest();
+      xhrAeroportAero1.open("GET", "get_aeroport.php", true);
+      xhrAeroportAero1.onreadystatechange = function() {
+        if (xhrAeroportAero1.readyState === 4 && xhrAeroportAero1.status === 200) {
+          var aeroports = JSON.parse(xhrAeroportAero1.responseText);
+          aeroports.forEach(function(aeroport) {
+            var option = document.createElement("option");
+            option.value = aeroport.id_a;
+            option.text = aeroport.name;
+            aeroportSelectAero1.appendChild(option);
+          });
+        }
+      };
+      xhrAeroportAero1.send();
+        
+      var aeroportSelectAero = document.getElementById("deleteAeroport");
+      var xhrAeroportAero = new XMLHttpRequest();
+      xhrAeroportAero.open("GET", "get_aeroport.php", true);
+      xhrAeroportAero.onreadystatechange = function() {
+        if (xhrAeroportAero.readyState === 4 && xhrAeroportAero.status === 200) {
+          var aeroports = JSON.parse(xhrAeroportAero.responseText);
+          aeroports.forEach(function(aeroport) {
+            var option = document.createElement("option");
+            option.value = aeroport.id_a;
+            option.text = aeroport.name;
+            aeroportSelectAero.appendChild(option);
+          });
+        }
+      };
+      xhrAeroportAero.send();
+     
+      var deleteCompany = document.getElementById("deleteCompany");
+      var xhrdeleteCompany = new XMLHttpRequest();
+      xhrdeleteCompany.open("GET", "get_company.php", true);
+      xhrdeleteCompany.onreadystatechange = function() {
+        if (xhrdeleteCompany.readyState === 4 && xhrdeleteCompany.status === 200) {
+          var companies = JSON.parse(xhrdeleteCompany.responseText);
+          companies.forEach(function(company) {
+            var option = document.createElement("option");
+            option.value = company.id_c;
+            option.text = company.name_company;
+            deleteCompany.appendChild(option);
+          });
+        }
+      };
+      xhrdeleteCompany.send();
+        
+      var company_plane = document.getElementById("company");
+      var xhrcompany_plane = new XMLHttpRequest();
+      xhrcompany_plane.open("GET", "get_company.php", true);
+      xhrcompany_plane.onreadystatechange = function() {
+        if (xhrcompany_plane.readyState === 4 && xhrcompany_plane.status === 200) {
+          var companies = JSON.parse(xhrcompany_plane.responseText);
+          companies.forEach(function(company) {
+            var option = document.createElement("option");
+            option.value = company.id_c;
+            option.text = company.name_company;
+            company_plane.appendChild(option);
+          });
+        }
+      };
+      xhrcompany_plane.send();
+        
+      var model_plane = document.getElementById("model");
+var xhrmodel_plane = new XMLHttpRequest();
+xhrmodel_plane.open("GET", "get_model.php", true);
+xhrmodel_plane.onreadystatechange = function() {
+  if (xhrmodel_plane.readyState === 4 && xhrmodel_plane.status === 200) {
+    var models = JSON.parse(xhrmodel_plane.responseText);
+    models.forEach(function(model) {
+      var option = document.createElement("option");
+      option.value = model.id_model;
+      option.text = model.model;
+      model_plane.appendChild(option);
+    });
+  }
+};
+xhrmodel_plane.send();
+
+        
+      var deleteAeroportStaff = document.getElementById("deleteAeroportStaff");
+      var xhrdeleteAeroportStaff = new XMLHttpRequest();
+      xhrdeleteAeroportStaff.open("GET", "get_aeroport_staff3.php", true);
+      xhrdeleteAeroportStaff.onreadystatechange = function() {
+        if (xhrdeleteAeroportStaff.readyState === 4 && xhrdeleteAeroportStaff.status === 200) {
+        var aeroportStaffs = JSON.parse(xhrdeleteAeroportStaff.responseText);
+        aeroportStaffs.forEach(function(aeroportStaff) {
+      var option = document.createElement("option");
+      option.value = aeroportStaff.id_as;
+      option.text = aeroportStaff.fullname;
+      deleteAeroportStaff.appendChild(option);
+    });
+       }
+    };
+      xhrdeleteAeroportStaff.send();
+        
+      var deleteCompanyStaff = document.getElementById("deleteCompanyStaff");
+      var xhrdeleteCompanyStaff = new XMLHttpRequest();
+      xhrdeleteCompanyStaff.open("GET", "get_company_staff3.php", true);
+      xhrdeleteCompanyStaff.onreadystatechange = function() {
+        if (xhrdeleteCompanyStaff.readyState === 4 && xhrdeleteCompanyStaff.status === 200) {
+        var companyStaffs = JSON.parse(xhrdeleteCompanyStaff.responseText);
+        companyStaffs.forEach(function(companyStaff) {
+      var option = document.createElement("option");
+      option.value = companyStaff.id_cs;
+      option.text = companyStaff.fullname;
+      deleteCompanyStaff.appendChild(option);
+    });
+       }
+    };
+      xhrdeleteCompanyStaff.send();
+        
+      var deletePlane = document.getElementById("deletePlane");
+      var xhrdeletePlane = new XMLHttpRequest();
+      xhrdeletePlane.open("GET", "get_plane.php", true);
+      xhrdeletePlane.onreadystatechange = function() {
+        if (xhrdeletePlane.readyState === 4 && xhrdeletePlane.status === 200) {
+        var planes = JSON.parse(xhrdeletePlane.responseText);
+        planes.forEach(function(plane) {
+      var option = document.createElement("option");
+      option.value = plane.id_plane;
+      option.text = plane.name_plane;
+      deletePlane.appendChild(option);
+    });
+       }
+    };
+      xhrdeletePlane.send();
+        
+      var deleteFlight = document.getElementById("deleteFlight");
+      var xhrdeleteFlight = new XMLHttpRequest();
+      xhrdeleteFlight.open("GET", "get_flight3.php", true);
+      xhrdeleteFlight.onreadystatechange = function() {
+        if (xhrdeleteFlight.readyState === 4 && xhrdeleteFlight.status === 200) {
+        var flights = JSON.parse(xhrdeleteFlight.responseText);
+        flights.forEach(function(flight) {
+      var option = document.createElement("option");
+      option.value = flight.id_f;
+      option.text = flight.number_flight;
+      deleteFlight.appendChild(option);
+    });
+       }
+    };
+      xhrdeleteFlight.send();
+        
+      var deleteTicket = document.getElementById("deleteTicket");
+      var xhrdeleteTicket = new XMLHttpRequest();
+      xhrdeleteTicket.open("GET", "get_ticket3.php", true);
+      xhrdeleteTicket.onreadystatechange = function() {
+        if (xhrdeleteTicket.readyState === 4 && xhrdeleteTicket.status === 200) {
+        var tickets = JSON.parse(xhrdeleteTicket.responseText);
+        tickets.forEach(function(ticket) {
+      var option = document.createElement("option");
+      option.value = ticket.id_t;
+      option.text = ticket.number_ticket;
+      deleteTicket.appendChild(option);
+    });
+       }
+    };
+      xhrdeleteTicket.send();
+        
+      var deletePassanger = document.getElementById("deletePassanger");
+      var xhrdeletePassanger = new XMLHttpRequest();
+      xhrdeletePassanger.open("GET", "get_passanger3.php", true);
+      xhrdeletePassanger.onreadystatechange = function() {
+        if (xhrdeletePassanger.readyState === 4 && xhrdeletePassanger.status === 200) {
+        var passangers = JSON.parse(xhrdeletePassanger.responseText);
+        passangers.forEach(function(passanger) {
+      var option = document.createElement("option");
+      option.value = passanger.id_p;
+      option.text = passanger.name_passanger;
+      deletePassanger.appendChild(option);
+    });
+       }
+    };
+      xhrdeletePassanger.send();
+        
+      var passangerFullname = document.getElementById("passanger_ticket");
+      var xhrPassangerFullname = new XMLHttpRequest();
+      xhrPassangerFullname.open("GET", "get_aeroport_staff.php", true);
+      xhrPassangerFullname.onreadystatechange = function() {
+        if (xhrPassangerFullname.readyState === 4 && xhrPassangerFullname.status === 200) {
+        var passangers = JSON.parse(xhrPassangerFullname.responseText);
+        passangers.forEach(function(passanger) {
+      var option = document.createElement("option");
+      option.value = passanger.id_p;
+      option.text = passanger.fullname;
+      passangerFullname.appendChild(option);
+      });
+      }
+      };
+      xhrPassangerFullname.send();    
+        
+      var aeroStaffFullname = document.getElementById("staff_maintenance");
+      var xhrAeroStaffFullname = new XMLHttpRequest();
+      xhrAeroStaffFullname.open("GET", "get_aeroport_staff3.php", true);
+      xhrAeroStaffFullname.onreadystatechange = function() {
+        if (xhrAeroStaffFullname.readyState === 4 && xhrAeroStaffFullname.status === 200) {
+        var aeroportStaffs = JSON.parse(xhrAeroStaffFullname.responseText);
+        aeroportStaffs.forEach(function(aeroportStaff) {
+      var option = document.createElement("option");
+      option.value = aeroportStaff.id_as;
+      option.text = aeroportStaff.fullname;
+      aeroStaffFullname.appendChild(option);
+    });
+       }
+    };
+      xhrAeroStaffFullname.send();
+
+        
+      var aeroportSelect = document.getElementById("place_departure");
+      var xhrAeroport = new XMLHttpRequest();
+      xhrAeroport.open("GET", "get_aeroport.php", true);
+      xhrAeroport.onreadystatechange = function() {
+        if (xhrAeroport.readyState === 4 && xhrAeroport.status === 200) {
+          var aeroports = JSON.parse(xhrAeroport.responseText);
+          aeroports.forEach(function(aeroport) {
+            var option = document.createElement("option");
+            option.value = aeroport.id_a;
+            option.text = aeroport.name;
+            aeroportSelect.appendChild(option);
+          });
+        }
+      };
+      xhrAeroport.send();
+        
+      var aeroportSelect2 = document.getElementById("place_arrival");
+      var xhrAeroport2 = new XMLHttpRequest();
+      xhrAeroport2.open("GET", "get_aeroport.php", true);
+      xhrAeroport2.onreadystatechange = function() {
+        if (xhrAeroport2.readyState === 4 && xhrAeroport2.status === 200) {
+          var aeroports = JSON.parse(xhrAeroport2.responseText);
+          aeroports.forEach(function(aeroport) {
+            var option = document.createElement("option");
+            option.value = aeroport.id_a;
+            option.text = aeroport.name;
+            aeroportSelect2.appendChild(option);
+          });
+        }
+      };
+      xhrAeroport2.send();
+        
+      var planeSelect = document.getElementById("plane_flight");
+      var xhrPlane = new XMLHttpRequest();
+      xhrPlane.open("GET", "get_plane.php", true);
+      xhrPlane.onreadystatechange = function() {
+        if (xhrPlane.readyState === 4 && xhrPlane.status === 200) {
+          var planes = JSON.parse(xhrPlane.responseText);
+          planes.forEach(function(plane) {
+            var option = document.createElement("option");
+            option.value = plane.id_plane;
+            option.text = plane.name_plane;
+            planeSelect.appendChild(option);
+          });
+        }
+      };
+      xhrPlane.send();
+        
+      var planeSelectMaintenance = document.getElementById("plane_maintenance");
+      var xhrPlaneMaintenance = new XMLHttpRequest();
+      xhrPlaneMaintenance.open("GET", "get_plane.php", true);
+      xhrPlaneMaintenance.onreadystatechange = function() {
+        if (xhrPlaneMaintenance.readyState === 4 && xhrPlaneMaintenance.status === 200) {
+          var planes = JSON.parse(xhrPlaneMaintenance.responseText);
+          planes.forEach(function(plane) {
+            var option = document.createElement("option");
+            option.value = plane.id_plane;
+            option.text = plane.name_plane;
+            planeSelectMaintenance.appendChild(option);
+          });
+        }
+      };
+      xhrPlaneMaintenance.send();
+
+        
+      var companySelect = document.getElementById("company_staff_company");
+      var xhrCompany = new XMLHttpRequest();
+      xhrCompany.open("GET", "get_company.php", true);
+      xhrCompany.onreadystatechange = function() {
+        if (xhrCompany.readyState === 4 && xhrCompany.status === 200) {
+          var companies = JSON.parse(xhrCompany.responseText);
+          companies.forEach(function(company) {
+            var option = document.createElement("option");
+            option.value = company.id_c;
+            option.text = company.name_company;
+            companySelect.appendChild(option);
+          });
+        }
+      };
+      xhrCompany.send();
+        
+      var sexSelect = document.getElementById("sex_staff");
+      var xhrSex = new XMLHttpRequest();
+      xhrSex.open("GET", "get_sex.php", true);
+      xhrSex.onreadystatechange = function() {
+        if (xhrSex.readyState === 4 && xhrSex.status === 200) {
+          var sexes = JSON.parse(xhrSex.responseText);
+          sexes.forEach(function(sex) {
+            var option = document.createElement("option");
+            option.value = sex.id_s;
+            option.text = sex.sex;
+            sexSelect.appendChild(option);
+          });
+        }
+      };
+      xhrSex.send();    
+        
+      var flightSelectTicket = document.getElementById("flight_ticket");
+      var xhrFlightTicket = new XMLHttpRequest();
+      xhrFlightTicket.open("GET", "get_flight.php", true);
+      xhrFlightTicket.onreadystatechange = function() {
+        if (xhrFlightTicket.readyState === 4 && xhrFlightTicket.status === 200) {
+          var flights = JSON.parse(xhrFlightTicket.responseText);
+          flights.forEach(function(flight) {
+            var option = document.createElement("option");
+            option.value = flight.id_f;
+            option.text = flight.number_flight;
+            flightSelectTicket.appendChild(option);
+          });
+        }
+      };
+      xhrFlightTicket.send();    
+        
+    var fullnameChangeCompanySalary = document.getElementById("fullname_changeCompanySalary");
+    var xhrfullnameChangeCompanySalary = new XMLHttpRequest();
+    xhrfullnameChangeCompanySalary.open("GET", "get_company_staff.php", true);
+    xhrfullnameChangeCompanySalary.onreadystatechange = function() {
+        if (xhrfullnameChangeCompanySalary.readyState === XMLHttpRequest.DONE) {
+            if (xhrfullnameChangeCompanySalary.status === 200) {
+                var companyStaffs = JSON.parse(xhrfullnameChangeCompanySalary.responseText);
+                companyStaffs.forEach(function(companyStaff) {
+                var option = document.createElement("option");
+                option.value = companyStaff.id_cs;
+                option.text = companyStaff.fullname;
+                fullnameChangeCompanySalary.appendChild(option);
+            });
+        } else {
+            console.error("Failed to retrieve company staff data");
+        }
+    }
+};
+xhrfullnameChangeCompanySalary.send(); 
+        
+       var fullnameChangeAeroportSalary = document.getElementById("fullname_changeAeroportSalary");
+var xhrfullnameChangeAeroportSalary = new XMLHttpRequest();
+xhrfullnameChangeAeroportSalary.open("GET", "get_aeroport_staff2.php", true);
+xhrfullnameChangeAeroportSalary.onreadystatechange = function() {
+    if (xhrfullnameChangeAeroportSalary.readyState === XMLHttpRequest.DONE) {
+        if (xhrfullnameChangeAeroportSalary.status === 200) {
+            var aeroportStaffs = JSON.parse(xhrfullnameChangeAeroportSalary.responseText);
+            
+            aeroportStaffs.forEach(function(aeroportStaff) { 
+                var option = document.createElement("option");
+                option.value = aeroportStaff.id_as;
+                option.text = aeroportStaff.fullname;
+                fullnameChangeAeroportSalary.appendChild(option);
+            });
+        } else {
+            console.error("Failed to retrieve aeroport staff data");
+        }
+    }
+};
+xhrfullnameChangeAeroportSalary.send(); 
+
+
+        
+        
+        var fullnameChangeCompanySalaryInfo = document.getElementById("changeCompanySalaryInfo");
+var xhrfullnameChangeCompanySalaryInfo = new XMLHttpRequest();
+xhrfullnameChangeCompanySalaryInfo.open("GET", "get_company_staff.php", true);
+xhrfullnameChangeCompanySalaryInfo.onreadystatechange = function() {
+    if (xhrfullnameChangeCompanySalaryInfo.readyState === XMLHttpRequest.DONE) {
+        if (xhrfullnameChangeCompanySalaryInfo.status === 200) {
+            var companyStaffsInfo = JSON.parse(xhrfullnameChangeCompanySalaryInfo.responseText);
+            companyStaffsInfo.forEach(function(companyStaffInfo) { 
+                var div = document.createElement("div"); 
+                div.textContent = companyStaffInfo.staff_info; 
+                fullnameChangeCompanySalaryInfo.appendChild(div); 
+            });
+        } else {
+            console.error("Failed to retrieve company staff data");
+        }
+    }
+};
+xhrfullnameChangeCompanySalaryInfo.send();
+        
+        var fullnameChangeAeroportSalaryInfo = document.getElementById("changeAeroportSalaryInfo");
+var xhrfullnameChangeAeroportSalaryInfo = new XMLHttpRequest();
+xhrfullnameChangeAeroportSalaryInfo.open("GET", "get_aeroport_staff2.php", true);
+xhrfullnameChangeAeroportSalaryInfo.onreadystatechange = function() {
+    if (xhrfullnameChangeAeroportSalaryInfo.readyState === XMLHttpRequest.DONE) {
+        if (xhrfullnameChangeAeroportSalaryInfo.status === 200) {
+            var aeroportStaffsInfo = JSON.parse(xhrfullnameChangeAeroportSalaryInfo.responseText);
+            aeroportStaffsInfo.forEach(function(aeroportStaffInfo) {
+                var div = document.createElement("div");
+                div.textContent = aeroportStaffInfo.staff_info;  fullnameChangeAeroportSalaryInfo.appendChild(div); 
+            });
+        } else {
+            console.error("Failed to retrieve company staff data");
+        }
+    }
+};
+xhrfullnameChangeAeroportSalaryInfo.send();
+
+   
+        
+      var sexSelectPassanger = document.getElementById("sex_passanger");
+      var xhrSexPassanger = new XMLHttpRequest();
+      xhrSexPassanger.open("GET", "get_sex.php", true);
+      xhrSexPassanger.onreadystatechange = function() {
+        if (xhrSexPassanger.readyState === 4 && xhrSexPassanger.status === 200) {
+          var sexes = JSON.parse(xhrSexPassanger.responseText);
+          sexes.forEach(function(sex) {
+            var option = document.createElement("option");
+            option.value = sex.id_s;
+            option.text = sex.sex;
+            sexSelectPassanger.appendChild(option);
+          });
+        }
+      };
+      xhrSexPassanger.send();    
+        
+      var addAeroportForm = document.getElementById("addAeroportForm");
+      addAeroportForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+          
+        var formData = new FormData(addAeroportForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "aeroport_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var changeCompanySalaryForm = document.getElementById("changeCompanySalaryForm");
+      changeCompanySalaryForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+          
+        var formData = new FormData(changeCompanySalaryForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "change_company_salary.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+    var deleteAeroportForm = document.getElementById("deleteAeroportForm");
+      deleteAeroportForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+          
+        var formData = new FormData(deleteAeroportForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "aeroport_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deleteCompanyForm = document.getElementById("deleteCompanyForm");
+      deleteCompanyForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+          
+        var formData = new FormData(deleteCompanyForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "company_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deleteAeroportStaffForm = document.getElementById("deleteAeroportStaffForm");
+      deleteAeroportStaffForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var formData = new FormData(deleteAeroportStaffForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "aeroport_staff_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deleteCompanyStaffForm = document.getElementById("deleteCompanyStaffForm");
+      deleteCompanyStaffForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+          
+        var formData = new FormData(deleteCompanyStaffForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "company_staff_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deletePlanefForm = document.getElementById("deletePlaneForm");
+      deletePlanefForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        
+        var formData = new FormData(deletePlanefForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "plane_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deleteFlightfForm = document.getElementById("deleteFlightForm");
+      deleteFlightfForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(deleteFlightfForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "flight_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deleteTicketForm = document.getElementById("deleteTicketForm");
+      deleteTicketForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(deleteTicketForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "ticket_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var deletePassangerForm = document.getElementById("deletePassangerForm");
+      deletePassangerForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(deletePassangerForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "passanger_delete.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var changeAeroportSalaryForm = document.getElementById("changeAeroportSalaryForm");
+      changeAeroportSalaryForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(changeAeroportSalaryForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "change_aeroport_salary.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var addTicketForm = document.getElementById("addTicketForm");
+      addTicketForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addTicketForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "ticket_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });    
+        
+      var addPassangerForm = document.getElementById("addPassangerForm");
+      addPassangerForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addPassangerForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "passanger_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });      
+        
+        var addPassangerForm = document.getElementById("addPassangerForm");
+      addPassangerForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addPassangerForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "passanger_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });    
+        
+      var addMaintenanceForm = document.getElementById("addMaintenanceForm");
+      addMaintenanceForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var formData = new FormData(addMaintenanceForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "maintenance_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText); 
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var addFlightForm = document.getElementById("addFlightForm");
+      addFlightForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addFlightForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "flight_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var addPlaneForm = document.getElementById("addPlaneForm");
+      addPlaneForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addPlaneForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "plane_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+
+      var addAeroportStaffForm = document.getElementById("addAeroportStaffForm");
+      addAeroportStaffForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addAeroportStaffForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "add_aeroport_staff.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var addCompanyStaffForm = document.getElementById("addCompanyStaffForm");
+      addCompanyStaffForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var formData = new FormData(addCompanyStaffForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "company_staff_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+        
+      var addCompanyForm = document.getElementById("addCompanyForm");
+      addCompanyForm.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        var formData = new FormData(addCompanyForm);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "company_add.php", true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            alert(xhr.responseText);
+          }
+        };
+        xhr.send(formData);
+      });
+    });
+
+    function showData(type) {
+      clearCompanyData();
+      var xhr = new XMLHttpRequest();
+      var url = '';
+      if (type === 'staff') {
+        url = 'company_staff_info.php';
+      } else if (type === 'company') {
+        url = 'company_info.php';
+      }
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function getAeroportInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "aeroport_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function getAeroportStaffInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "aeroport_staff_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function getPlaneInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "plane_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+      
+      function getReport() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "get_staff_report.php", true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var reportContainer = document.getElementById("reportContainer");
+            if (reportContainer) {
+                
+                if (reportContainer.innerHTML.trim() === "") {
+                    reportContainer.innerHTML = xhr.responseText;
+                } else {
+                    reportContainer.innerHTML = "";
+                }
+            } else {
+                console.error('Element with ID "reportContainer" not found.');
+            }
+        }
+    };
+    xhr.send();
+}
+
+
+    function getFlightInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "flight_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function getTicketInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "ticket_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function getMaintenanceInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "maintenance_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function getPassangerInfo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "passanger_info.php", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("companyData").innerHTML = xhr.responseText;
+        }
+      };
+      xhr.send();
+    }
+
+    function clearCompanyData() {
+      document.getElementById("companyData").innerHTML = "";
+    }
+
+    function openAddAeroportModal() {
+      var modal = document.getElementById("addAeroportModal");
+      modal.style.display = "block";
+    }
+
+    function openAddAeroportStaffModal() {
+      var modal = document.getElementById("addAeroportStaffModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddCompanyStaffModal() {
+      var modal = document.getElementById("addCompanyStaffModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddCompanyModal() {
+      var modal = document.getElementById("addCompanyModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddFlightModal() {
+      var modal = document.getElementById("addFlightModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddPlaneModal() {
+      var modal = document.getElementById("addPlaneModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddMaintenanceModal() {
+      var modal = document.getElementById("addMaintenanceModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddPassangerModal() {
+      var modal = document.getElementById("addPassangerModal");
+      modal.style.display = "block";
+    }
+      
+    function openAddTicketModal() {
+      var modal = document.getElementById("addTicketModal");
+      modal.style.display = "block";
+    }
+      
+    function openChangeCompanySalaryModal() {
+      var modal = document.getElementById("changeCompanySalaryModal");
+      modal.style.display = "block";
+    }
+      
+    function openChangeAeroportSalaryModal() {
+      var modal = document.getElementById("changeAeroportSalaryModal");
+      modal.style.display = "block";
+    }
+      
+    function openChangeTicketSeatModal() {
+      var modal = document.getElementById("changeTicketSeatModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeleteAeroportModal() {
+      var modal = document.getElementById("deleteAeroportModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeleteCompanyModal() {
+      var modal = document.getElementById("deleteCompanyModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeleteAeroportStaffModal() {
+      var modal = document.getElementById("deleteAeroportStaffModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeleteCompanyStaffModal() {
+      var modal = document.getElementById("deleteCompanyStaffModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeletePlaneModal() {
+      var modal = document.getElementById("deletePlaneModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeleteFlightModal() {
+      var modal = document.getElementById("deleteFlightModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeleteTicketModal() {
+      var modal = document.getElementById("deleteTicketModal");
+      modal.style.display = "block";
+    }
+      
+    function openDeletePassangerModal() {
+      var modal = document.getElementById("deletePassangerModal");
+      modal.style.display = "block";
+    }
+
+    function closeModal(modalId) {
+      var modal = document.getElementById(modalId);
+      modal.style.display = "none";
+    }
+  </script>
+</head>
+<body>
+
+<div class="btn-container">
+ <div id="info_block">
+  <button onclick="showData('staff')">Company Staff info</button>
+  <button onclick="showData('company')">Company info</button>
+  <button onclick="getAeroportInfo()">Get Aeroport Info</button>
+  <button onclick="getAeroportStaffInfo()">Get Aeroport Staff Info</button>
+  <button onclick="getPlaneInfo()">Get Plane Info</button>
+  <button onclick="getFlightInfo()">Flight info</button>
+  <button onclick="getTicketInfo()">Ticket info</button>
+  <button onclick="getMaintenanceInfo()">Maintenance info</button>
+  <button onclick="getPassangerInfo()">Passanger info</button>
+    </div>
+  <div id="add_block">
+  <button onclick="openAddAeroportModal()">Add Aeroport</button>
+  <button onclick="openAddAeroportStaffModal()">Add Aeroport Staff</button>
+  <button onclick="openAddCompanyModal()">Add Company</button>
+  <button onclick="openAddCompanyStaffModal()">Add Company Staff</button>
+  <button onclick="openAddFlightModal()">Add Flight</button>
+  <button onclick="openAddPlaneModal()">Add Plane</button>
+  <button onclick="openAddMaintenanceModal()">Add Maintenance</button>
+  <button onclick="openAddPassangerModal()">Add Passanger</button>
+  <button onclick="openAddTicketModal()">Add Ticket</button>
+    </div>
+  <button onclick="openChangeCompanySalaryModal()">Change Company Salary</button>
+  <button onclick="openChangeAeroportSalaryModal()">Change Aeroport Salary</button>
+  <div id="delete_block">
+  <button onclick="openDeleteAeroportModal()">Delete Aeroport</button>
+  <button onclick="openDeleteCompanyModal()">Delete Company</button>
+  <button onclick="openDeleteAeroportStaffModal()">Delete Aeroport staff</button>
+  <button onclick="openDeleteCompanyStaffModal()">Delete Company staff</button>
+  <button onclick="openDeletePlaneModal()">Delete Plane</button>
+  <button onclick="openDeleteFlightModal()">Delete Flight</button>
+  <button onclick="openDeleteTicketModal()">Delete Ticket</button>
+  <button onclick="openDeletePassangerModal()">Delete Passanger</button>
+    </div>
+  <button class="button" onclick="getReport()">Get Report</button>
+
+</div>
+
+<div id="addAeroportModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addAeroportModal')">&times;</span>
+    <h2>Add Aeroport</h2>
+    <form id="addAeroportForm" class="add-aeroport-form">
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" required><br><br>
+
+      <label for="city">City:</label><br>
+      <input type="text" id="city" name="city" required><br><br>
+
+      <label for="country">Country:</label><br>
+      <select id="country" name="country" required>
+      </select><br><br>
+
+      <label for="phone">Phone:</label><br>
+      <input type="text" id="phone" name="phone" required><br><br>
+
+      <label for="gmail">Gmail:</label><br>
+      <input type="email" id="gmail" name="gmail" required><br><br>
+
+      <button type="submit">Add Aeroport</button>
+    </form>
+  </div>
+</div>
+
+<div id="addAeroportStaffModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addAeroportStaffModal')">&times;</span>
+    <h2>Add Aeroport Staff</h2>
+    <form id="addAeroportStaffForm" class="add-aeroport-staff-form">
+      <label for="name_aerostaff">Name:</label><br>
+      <input type="text" id="name_aerostaff" name="name_aerostaff" required><br><br>
+
+      <label for="surname">Surname:</label><br>
+      <input type="text" id="surname" name="surname" required><br><br>
+
+      <label for="sex">Sex:</label><br>
+      <select id="sex" name="sex" required>
+      </select><br><br>
+
+      <label for="airport_pos_list">Position:</label><br>
+      <select id="airport_pos_list" name="airport_pos_list" required>
+      </select><br><br>
+
+      <label for="salary">Salary:</label><br>
+      <input type="number" id="salary" name="salary" required><br><br>
+
+      <label for="date_start">Date start:</label><br>
+      <input type="date" id="date_start" name="date_start" required><br><br>
+      
+      <label for="aeroport_staff_aeroport">Aeroport:</label><br>
+      <select id="aeroport_staff_aeroport" name="aeroport_staff_aeroport" required>
+      </select><br><br>
+
+      <button type="submit">Add Aeroport Staff</button>
+    </form>
+  </div>
+</div>
+
+<div id="addCompanyStaffModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addCompanyStaffModal')">&times;</span>
+    <h2>Add Company Staff</h2>
+    <form id="addCompanyStaffForm" class="add-company-staff-form">
+      <label for="name_staff">Name:</label><br>
+      <input type="text" id="name_staff" name="name_staff" required><br><br>
+
+      <label for="surname_staff">Surname:</label><br>
+      <input type="text" id="surname_staff" name="surname_staff" required><br><br>
+
+      <label for="sex_staff">Sex:</label><br>
+      <select id="sex_staff" name="sex_staff" required>
+      </select><br><br>
+
+      <label for="company_pos_list">Position:</label><br>
+      <select id="company_pos_list" name="company_pos_list" required>
+      </select><br><br>
+
+      <label for="salary_staff">Salary:</label><br>
+      <input type="number" id="salary_staff" name="salary_staff" required><br><br>
+
+      <label for="date_start_staff">Date start:</label><br>
+      <input type="date" id="date_start_staff" name="date_start_staff" required><br><br>
+      
+      <label for="company_staff_company">Company:</label><br>
+      <select id="company_staff_company" name="company_staff_company" required>
+      </select><br><br>
+
+      <button type="submit">Add Company Staff</button>
+    </form>
+  </div>
+</div>
+
+
+<div id="addCompanyModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addCompanyModal')">&times;</span>
+    <h2>Add Company</h2>
+    <form id="addCompanyForm" class="add-company-form">
+      <label for="name_company">Name:</label><br>
+      <input type="text" id="name_company" name="name_company" required><br><br>
+
+      <label for="date_company">Date:</label><br>
+      <input type="date" id="date_company" name="date_company" required><br><br>
+
+      <label for="country_company">Country:</label><br>
+      <select id="country_company" name="country_company" required>
+      </select><br><br>
+
+      <label for="phone_company">Phone:</label><br>
+      <input type="text" id="phone_company" name="phone_company" required><br><br>
+
+      <label for="gmail_company">Gmail:</label><br>
+      <input type="email" id="gmail_company" name="gmail_company" required><br><br>
+
+      <button type="submit">Add Company</button>
+    </form>
+  </div>
+</div>
+
+<div id="addFlightModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addFlightModal')">&times;</span>
+    <h2>Add Flight</h2>
+    <form id="addFlightForm" class="add-flight-form">
+      <label for="number_flight">Number:</label><br>
+      <input type="number" id="number_flight" name="number_flight" required><br><br>
+
+      <label for="date_departure">Date departure:</label><br>
+      <input type="datetime-local" id="date_departure" name="date_departure" required><br><br>
+      
+      <label for="date_arrival">Date arrival:</label><br>
+      <input type="datetime-local" id="date_arrival" name="date_arrival" required><br><br>
+
+      <label for="place_departure">Place departure:</label><br>
+      <select id="place_departure" name="place_departure" required>
+      </select><br><br>
+      
+      <label for="place_arrival">Place arrival:</label><br>
+      <select id="place_arrival" name="place_arrival" required>
+      </select><br><br>
+      
+      <label for="plane_flight">Plane:</label><br>
+      <select id="plane_flight" name="plane_flight" required>
+      </select><br><br>    
+
+      <button type="submit">Add Flight</button>
+    </form>
+  </div>
+</div>
+ 
+ <div id="addPlaneModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addPlaneModal')">&times;</span>
+    <h2>Add Flight</h2>
+    <form id="addPlaneForm" class="add-plane-form">
+      <label for="name_plane">Number:</label><br>
+      <input type="text" id="name_plane" name="name_plane" required><br><br>
+
+      <label for="model">Plane Model:</label><br>
+      <select id="model" name="model" required>
+      </select><br><br>
+      
+      <label for="date">Date:</label><br>
+      <input type="date" id="date" name="date" required><br><br>
+
+      <label for="company">Company:</label><br>
+      <select id="company" name="company" required>
+      </select><br><br>
+
+      <button type="submit">Add Plane</button>
+    </form>
+  </div>
+</div>
+
+<div id="addMaintenanceModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addMaintenanceModal')">&times;</span>
+    <h2>Add Maintenance</h2>
+    <form id="addMaintenanceForm" class="add-maintenance-form">
+      <label for="plane_maintenance">Plane:</label><br>
+      <select id="plane_maintenance" name="plane_maintenance" required>
+      </select><br><br> 
+
+      <label for="date_maintenance">Date:</label><br>
+      <input type="date" id="date_departure" name="date_maintenance" required><br><br>
+      
+      <label for="state">State:</label><br>
+      <input type="text" id="state" name="state" required><br><br>
+
+      <label for="staff_maintenance">Staff:</label><br>
+      <select id="staff_maintenance" name="staff_maintenance" required>
+      </select><br><br>
+      <button type="submit">Add Maintenance</button>
+    </form>
+  </div>
+</div>
+
+<div id="addPassangerModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addPassangerModal')">&times;</span>
+    <h2>Add Passanger</h2>
+    <form id="addPassangerForm" class="add-passanger-form">
+     
+      <label for="name_passanger">Name:</label><br>
+      <input type="text" id="name_passanger" name="name_passanger" required><br><br>
+      
+      <label for="surname_passanger">Surname:</label><br>
+      <input type="text" id="surname_passanger" name="surname_passanger" required><br><br>
+      
+      <label for="patronymic_passanger">Patronymic:</label><br>
+      <input type="text" id="patronymic_passanger" name="patronymic_passanger"><br><br>
+      
+      <label for="sex_passanger">Sex:</label><br>
+      <select id="sex_passanger" name="sex_passanger" required>
+      </select><br><br> 
+
+      <label for="dob">DoB:</label><br>
+      <input type="date" id="dob" name="dob" required><br><br>
+      
+      <label for="country_passanger">Country:</label><br>
+      <select id="country_passanger" name="country_passanger" required>
+      </select><br><br>
+
+      <button type="submit">Add Passanger</button>
+    </form>
+  </div>
+</div>
+
+<div id="addTicketModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addTicketModal')">&times;</span>
+    <h2>Add Ticket</h2>
+    <form id="addTicketForm" class="add-ticket-form">
+     
+      <label for="number_ticket">Number:</label><br>
+      <input type="text" id="number_ticket" name="number_ticket" required><br><br>
+      
+      <label for="price_ticket">Price:</label><br>
+      <input type="number" id="price_ticket" name="price_ticket" required><br><br>
+      
+      <label for="passanger_ticket">Passanger:</label><br>
+      <select id="passanger_ticket" name="passanger_ticket" required>
+      </select><br><br> 
+      
+      <label for="flight_ticket">Flight:</label><br>
+      <select id="flight_ticket" name="flight_ticket" required>
+      </select><br><br>
+<style>
+  .seat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .seat {
+    width: 50px;
+    height: 50px;
+    background-color: lightgrey;
+    border: 1px solid #ccc;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .seat.selected {
+    background-color: green;
+  }
+
+  .seat[disabled] {
+    cursor: not-allowed;
+  }
+</style>
+
+      <div class="seat-grid">
+        <div class="row">
+          <button type="button" class="seat" value="1A">1A</button>
+          <button type="button" class="seat" value="2A">2A</button>
+          <button type="button" class="seat" value="3A">3A</button>
+          <div style="width: 50px;"></div>
+          <button type="button" class="seat" value="4A">4A</button>
+          <button type="button" class="seat" value="5A">5A</button>
+          <button type="button" class="seat" value="6A">6A</button>
+        </div>
+        <div class="row">
+          <button type="button" class="seat" value="1B">1B</button>
+          <button type="button" class="seat" value="2B">2B</button>
+          <button type="button" class="seat" value="3B">3B</button>
+          <div style="width: 50px;"></div>
+          <button type="button" class="seat" value="4B">4B</button>
+          <button type="button" class="seat" value="5B">5B</button>
+          <button type="button" class="seat" value="6B">6B</button>
+        </div>
+        <div class="row">
+          <button type="button" class="seat" value="1C">1C</button>
+          <button type="button" class="seat" value="2C">2C</button>
+          <button type="button" class="seat" value="3C">3C</button>
+          <div style="width: 50px;"></div>
+          <button type="button" class="seat" value="4C">4C</button>
+          <button type="button" class="seat" value="5C">5C</button>
+          <button type="button" class="seat" value="6C">6C</button>
+        </div>
+      </div>
+
+      <input type="hidden" id="seat_ticket" name="seat_ticket" required>
+
+      <button type="submit">Add Ticket</button>
+    </form>
+  </div>
+</div>
+
+<div id="changeCompanySalaryModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('changeCompanySalaryModal')">&times;</span>
+    <h2>Change Salary</h2>
+    <form id="changeCompanySalaryForm" class="add-passanger-form">
+     
+      <label for="fullname_changeCompanySalary">Company worker:</label><br>
+      <select id="fullname_changeCompanySalary" name="fullname_changeCompanySalary" required>
+      </select><br><br>
+      
+      <div id="changeCompanySalaryInfo"></div>
+
+      <label for="newCompanySalary">New Salary:</label><br>
+      <input type="number" id="newCompanySalary" name="newCompanySalary" required><br><br>
+
+      <button type="submit">Change Salary</button>
+    </form>
+  </div>
+</div>
+ 
+ <div id="changeAeroportSalaryModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('changeAeroportSalaryModal')">&times;</span>
+    <h2>Change Salary</h2>
+    <form id="changeAeroportSalaryForm" class="add-passanger-form">
+     
+      <label for="fullname_changeAeroportSalary">Aeroport worker:</label><br>
+      <select id="fullname_changeAeroportSalary" name="fullname_changeAeroportSalary" required>
+      </select><br><br>
+      
+      <div id="changeAeroportSalaryInfo"></div>
+
+      <label for="newAeroportSalary">New Salary:</label><br>
+      <input type="number" id="newAeroportSalary" name="newAeroportSalary" required><br><br>
+
+      <button type="submit">Change Salary</button>
+    </form>
+  </div>
+</div>  
+   
+<div id="deleteAeroportModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteAeroportModal')">&times;</span>
+    <h2>Delete Aeroport</h2>
+    <form id="deleteAeroportForm" class="add-passanger-form">
+     
+      <label for="deleteAeroport">Aeroport: </label><br>
+      <select id="deleteAeroport" name="deleteAeroport" required>
+      </select><br><br>
+
+      <button type="submit">Delete Aeroport</button>
+    </form>
+  </div>
+</div>
+ 
+ <div id="deleteCompanyModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteCompanyModal')">&times;</span>
+    <h2>Delete Aeroport</h2>
+    <form id="deleteCompanyForm" class="add-passanger-form">
+     
+      <label for="deleteCompany">Aeroport: </label><br>
+      <select id="deleteCompany" name="deleteCompany" required>
+      </select><br><br>
+
+      <button type="submit">Delete Company</button>
+    </form>
+  </div>
+</div>
+ 
+<div id="deleteAeroportStaffModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteAeroportStaffModal')">&times;</span>
+    <h2>Delete Aeroport Staff</h2>
+    <form id="deleteAeroportStaffForm" class="delete-aeroportstaff-form">
+     
+      <label for="deleteAeroportStaff">Aeroport staff: </label><br>
+      <select id="deleteAeroportStaff" name="deleteAeroportStaff" required>
+      </select><br><br>
+
+      <button type="submit">Delete Aeroport staff</button>
+    </form>
+  </div>
+</div>
+ 
+ <div id="deleteCompanyStaffModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteCompanyStaffModal')">&times;</span>
+    <h2>Delete Company Staff</h2>
+    <form id="deleteCompanyStaffForm" class="delete-companystaff-form">
+     
+      <label for="deleteCompanyStaff">Company staff: </label><br>
+      <select id="deleteCompanyStaff" name="deleteCompanyStaff" required>
+      </select><br><br>
+
+      <button type="submit">Delete Company staff</button>
+    </form>
+  </div>
+</div>
+ 
+ <div id="deletePlaneModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deletePlaneModal')">&times;</span>
+    <h2>Delete Company Staff</h2>
+    <form id="deletePlaneForm" class="delete-plane-form">
+     
+      <label for="deletePlane">Plane: </label><br>
+      <select id="deletePlane" name="deletePlane" required>
+      </select><br><br>
+
+      <button type="submit">Delete Plane</button>
+    </form>
+  </div>
+</div>
+ 
+ <div id="deleteFlightModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteFlightModal')">&times;</span>
+    <h2>Delete Flight</h2>
+    <form id="deleteFlightForm" class="delete-flight-form">
+     
+      <label for="deleteFlight">Flight: </label><br>
+      <select id="deleteFlight" name="deleteFlight" required>
+      </select><br><br>
+
+      <button type="submit">Delete Flight</button>
+    </form>
+  </div>
+</div>
+ 
+<div id="deleteTicketModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteTicketModal')">&times;</span>
+    <h2>Delete Ticket</h2>
+    <form id="deleteTicketForm" class="delete-ticket-form">
+     
+      <label for="deleteTicket">Ticket: </label><br>
+      <select id="deleteTicket" name="deleteTicket" required>
+      </select><br><br>
+
+      <button type="submit">Delete Ticket</button>
+    </form>
+  </div>
+</div>
+ 
+<div id="deleteMaintenanceModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteMaintenanceModal')">&times;</span>
+    <h2>Delete Maintenance</h2>
+    <form id="deleteMaintenanceForm" class="delete-maintenance-form">
+     
+      <label for="deleteMaintenance">Ticket: </label><br>
+      <select id="deleteMaintenance" name="deleteMaintenance" required>
+      </select><br><br>
+
+      <button type="submit">Delete Maintenance</button>
+    </form>
+  </div>
+</div>
+ 
+<div id="deletePassangerModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deletePassangerModal')">&times;</span>
+    <h2>Delete Passanger</h2>
+    <form id="deletePassangerForm" class="delete-passanger-form">
+     
+      <label for="deletePassanger">Passanger: </label><br>
+      <select id="deletePassanger" name="deletePassanger" required>
+      </select><br><br>
+
+      <button type="submit">Delete Passanger</button>
+    </form>
+  </div>
+</div>     
+
+<div id="reportContainer"></div>
+    
+<div id="companyData"></div>
+
+</body>
+</html>

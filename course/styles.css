@@ -1,0 +1,192 @@
+.btn-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#info_block button:nth-child(-n+3), 
+#add_block button:nth-child(-n+3),
+#delete_block button:nth-child(-n+3),
+button:nth-of-type(1) {
+  background-color: #1e90ff;
+}
+
+#info_block button:nth-child(-n+3):hover,
+#add_block button:nth-child(-n+3):hover,
+#delete_block button:nth-child(-n+3):hover,
+button:nth-of-type(1):hover {
+  background-color: #187bcd;
+}
+
+#info_block button:nth-child(-n+3):active,
+#add_block button:nth-child(-n+3):active,
+#delete_block button:nth-child(-n+3):active,
+button:nth-of-type(1):active {
+  background-color: #145ea1;
+}
+
+#info_block button:nth-child(n+4):nth-child(-n+6), 
+#add_block button:nth-child(n+4):nth-child(-n+6),
+#delete_block button:nth-child(n+4):nth-child(-n+6),
+button:nth-of-type(2) {
+  background-color: #00bfff; 
+}
+
+#info_block button:nth-child(n+4):nth-child(-n+6):hover,
+#add_block button:nth-child(n+4):nth-child(-n+6):hover,
+#delete_block button:nth-child(n+4):nth-child(-n+6):hover,
+button:nth-of-type(2):hover {
+  background-color: #00a4cc;
+}
+
+#info_block button:nth-child(n+4):nth-child(-n+6):active,
+#add_block button:nth-child(n+4):nth-child(-n+6):active,
+#delete_block button:nth-child(n+4):nth-child(-n+6):active,
+button:nth-of-type(2):active {
+  background-color: #008bb3;
+}
+
+#info_block button:nth-child(n+7):nth-child(-n+9), 
+#add_block button:nth-child(n+7):nth-child(-n+9),
+#delete_block button:nth-child(n+7):nth-child(-n+9) {
+  background-color: #87cefa;
+}
+
+#info_block button:nth-child(n+7):nth-child(-n+9):hover,
+#add_block button:nth-child(n+7):nth-child(-n+9):hover,
+#delete_block button:nth-child(n+7):nth-child(-n+9):hover {
+  background-color: #70b8e6;
+}
+
+#info_block button:nth-child(n+7):nth-child(-n+9):active,
+#add_block button:nth-child(n+7):nth-child(-n+9):active,
+#delete_block button:nth-child(n+7):nth-child(-n+9):active {
+  background-color: #5aa3d2;
+}
+
+#info_block button:nth-child(n+10),
+#add_block button:nth-child(n+10),
+#delete_block button:nth-child(n+10) {
+  background-color: #4682b4; 
+}
+
+#info_block button:nth-child(n+10):hover,
+#add_block button:nth-child(n+10):hover,
+#delete_block button:nth-child(n+10):hover {
+  background-color: #3b729d;
+}
+
+#info_block button:nth-child(n+10):active,
+#add_block button:nth-child(n+10):active,
+#delete_block button:nth-child(n+10):active {
+  background-color: #326185;
+}
+
+.button {
+  background-color: #1e90ff;
+}
+
+.button:hover {
+  background-color: #187bcd;
+}
+
+.button:active {
+  background-color: #145ea1;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 10px;
+  max-width: 600px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal-content button:hover {
+  transform: translateY(-2px);
+}
+
+.modal-content button:active {
+  transform: translateY(0);
+}
+
+.modal-content button[type="submit"] {
+  background-color: #1e90ff; 
+}
+
+.modal-content button[type="submit"]:hover {
+  background-color: #187bcd;
+}
+
+.modal-content button[type="submit"]:active {
+  background-color: #145ea1;
+}
+
+h2 {
+    text-align: center;
+}
+
+h1 {
+  text-align: center;
+}
+
